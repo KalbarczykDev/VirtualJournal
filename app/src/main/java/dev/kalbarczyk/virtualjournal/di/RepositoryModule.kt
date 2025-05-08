@@ -28,6 +28,7 @@ abstract class RepositoryModule {
             @ApplicationContext context: Context
         ): VirtualJournalDb{
             return Room.databaseBuilder(context, VirtualJournalDb::class.java, "virtual_journal.db")
+                .fallbackToDestructiveMigration(true)
                 .build()
         }
     }

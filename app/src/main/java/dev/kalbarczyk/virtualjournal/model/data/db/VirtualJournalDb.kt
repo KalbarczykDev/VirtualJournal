@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import dev.kalbarczyk.virtualjournal.model.data.db.dao.JournalEntryDao
 import dev.kalbarczyk.virtualjournal.model.data.db.entity.JournalEntryEntity
 
-@Database(entities = [JournalEntryEntity::class], version = 1)
+@Database(entities = [JournalEntryEntity::class], version = 2)
 abstract class VirtualJournalDb : RoomDatabase() {
     abstract val journal: JournalEntryDao
 }

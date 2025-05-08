@@ -19,7 +19,11 @@ class JournalEntryRepositoryImpl @Inject constructor(
 
     init{
         _entries = List(10){
-            JournalEntry(0, it.toString() + "|"+LoremIpsum(10).values.joinToString())
+            JournalEntry(0, LoremIpsum(10).values.joinToString(),
+                cityName = "Radom",
+                photoPath = null,
+                voiceRecordingPath = null
+            )
         }.toMutableList()
     }
 
