@@ -12,29 +12,34 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.ui.theme.VirtualJournalTheme
 import dev.kalbarczyk.virtualjournal.ui.view.EntryListScreen
+import dev.kalbarczyk.virtualjournal.ui.viewmodel.AddEntryViewModel
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryListViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     val entryListViewModel: EntryListViewModel by viewModels()
+    val addEntryViewModel: AddEntryViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             VirtualJournalTheme {
-                    val navController = rememberNavController()
+                val navController = rememberNavController()
 
                 NavHost(
                     navController,
-                    Destinations.ENTRY_LIST_DESTINATION
-                ){
+                    Destinations.LIST_ENTRIES_DESTINATION
+                ) {
                     // Entry list
-                    composable(Destinations.ENTRY_LIST_DESTINATION) {
+                    composable(Destinations.LIST_ENTRIES_DESTINATION) {
                         val vm: EntryListViewModel = entryListViewModel
+
+                        val avm: AddEntryViewModel = addEntryViewModel
 
                         LaunchedEffect(Unit) {
                             vm.load()
@@ -46,7 +51,17 @@ class MainActivity : ComponentActivity() {
                         EntryListScreen(
                             entries = state,
                             onAddClicked = {
-                                navController.navigate(Destinations.ADD_ENTRY_DESTINATION)
+                                //  navController.navigate(Destinations.ADD_ENTRY_DESTINATION)
+
+                                val newEntry = JournalEntry(
+                                    id = 0,
+                                    content = "Note from user",
+                                    cityName = "Warszawa",
+                                    photoPath = null,
+                                    voiceRecordingPath = null
+                                )
+                                avm.addEntry(newEntry)
+                                vm.load()
                             },
                             {}
                         )
@@ -57,18 +72,18 @@ class MainActivity : ComponentActivity() {
 
                     }
                 }
-                }
             }
         }
     }
+}
 
 object Destinations {
     const val ARG_ID = "id"
-    const val ENTRY_LIST_DESTINATION = "entry_list"
+    const val LIST_ENTRIES_DESTINATION = "entry_list"
     const val ADD_ENTRY_DESTINATION = "add_entry"
-    const val DETAILS_DESTINATION = "details/{$ARG_ID}"
+    const val ENTRY_DETAILS_DESTINATION = "details/{$ARG_ID}"
 
     fun getRouteForDetails(id: Int): String {
-        return DETAILS_DESTINATION.replace("{$ARG_ID}", id.toString())
+        return ENTRY_DETAILS_DESTINATION.replace("{$ARG_ID}", id.toString())
     }
 }
