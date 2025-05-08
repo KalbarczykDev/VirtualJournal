@@ -1,35 +1,80 @@
 package dev.kalbarczyk.virtualjournal.utils
 
-import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Geocoder
-import android.util.Log
-import androidx.annotation.RequiresPermission
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import kotlinx.coroutines.tasks.await
-import java.util.*
+import android.location.Location
+import android.location.LocationManager
 
-@RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-suspend fun getCityFromLocation(context: Context): String? {
-    return try {
-        val fusedLocationProvider = LocationServices.getFusedLocationProviderClient(context)
+import androidx.core.content.ContextCompat
 
-        val location = fusedLocationProvider.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            null
-        ).await()
 
-        if (location == null) {
-            Log.w("Location", "Location is null – make sure emulator/device has a valid GPS location.")
+import com.google.android.gms.location.FusedLocationProviderClient
+
+import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.Locale
+import kotlin.coroutines.resume
+
+
+class LocationManager(
+    private val context: Context,
+    private val fusedLocationProviderClient: FusedLocationProviderClient
+) {
+
+    suspend fun getLocation(): Location? {
+
+        val hasGrantedFineLocationPermission = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val hasGrantedCoarseLocationPermission = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val locationManager = context.getSystemService(
+            Context.LOCATION_SERVICE
+        ) as LocationManager
+
+        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+        if (!isGpsEnabled && !(hasGrantedCoarseLocationPermission || hasGrantedFineLocationPermission)) {
             return null
         }
 
+        return suspendCancellableCoroutine { cont ->
+
+            fusedLocationProviderClient.lastLocation.apply {
+                if (isComplete) {
+                    if (isSuccessful) {
+                        cont.resume(result)
+                    } else {
+                        cont.resume(null)
+                    }
+                    return@suspendCancellableCoroutine
+                }
+
+                addOnSuccessListener {
+                    cont.resume(result)
+                }
+
+                addOnFailureListener {
+                    cont.resume(null)
+                }
+
+                addOnCanceledListener {
+                    cont.cancel()
+                }
+            }
+        }
+    }
+
+    suspend fun getCityName(): String? {
+        val location = getLocation() ?: return null
         val geocoder = Geocoder(context, Locale.getDefault())
         val result = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-        result?.firstOrNull()?.locality
-    } catch (e: Exception) {
-        Log.e("Location", "Error retrieving location or resolving city", e)
-        null
+        return result?.firstOrNull()?.locality
     }
 }
