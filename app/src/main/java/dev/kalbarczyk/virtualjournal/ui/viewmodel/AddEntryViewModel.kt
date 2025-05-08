@@ -18,6 +18,9 @@ class AddEntryViewModel @Inject constructor(
 ): ViewModel() {
    // private val state = MutableStateFlow<List<JournalEntry>>(emptyList())
 
+
+
+
    fun load() {
         viewModelScope.launch {
          //   val allEntries = repository.getAll()

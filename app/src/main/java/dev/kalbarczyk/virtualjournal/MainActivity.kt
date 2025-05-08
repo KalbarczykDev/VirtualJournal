@@ -17,12 +17,24 @@ import dev.kalbarczyk.virtualjournal.ui.view.AddEntryScreen
 import dev.kalbarczyk.virtualjournal.ui.view.EntryListScreen
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.AddEntryViewModel
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryListViewModel
+import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioPlayer
+import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
+import java.io.File
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val entryListViewModel: EntryListViewModel by viewModels()
-    val addEntryViewModel: AddEntryViewModel by viewModels()
+    private val entryListViewModel: EntryListViewModel by viewModels()
+    private val addEntryViewModel: AddEntryViewModel by viewModels()
+
+    private val recorder by lazy {
+        AndroidAudioRecorder(applicationContext)
+    }
+    private val player by lazy {
+        AndroidAudioPlayer(applicationContext)
+    }
+
+    private var audioFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
