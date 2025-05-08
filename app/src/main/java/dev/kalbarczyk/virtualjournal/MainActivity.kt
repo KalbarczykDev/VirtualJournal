@@ -12,8 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.ui.theme.VirtualJournalTheme
+import dev.kalbarczyk.virtualjournal.ui.view.AddEntryScreen
 import dev.kalbarczyk.virtualjournal.ui.view.EntryListScreen
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.AddEntryViewModel
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryListViewModel
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     composable(Destinations.LIST_ENTRIES_DESTINATION) {
                         val vm: EntryListViewModel = entryListViewModel
 
-                        val avm: AddEntryViewModel = addEntryViewModel
+
 
                         LaunchedEffect(Unit) {
                             vm.load()
@@ -51,17 +51,7 @@ class MainActivity : ComponentActivity() {
                         EntryListScreen(
                             entries = state,
                             onAddClicked = {
-                                //  navController.navigate(Destinations.ADD_ENTRY_DESTINATION)
-
-                                val newEntry = JournalEntry(
-                                    id = 0,
-                                    content = "Note from user",
-                                    cityName = "Warszawa",
-                                    photoPath = null,
-                                    voiceRecordingPath = null
-                                )
-                                avm.addEntry(newEntry)
-                                vm.load()
+                                navController.navigate(Destinations.ADD_ENTRY_DESTINATION)
                             },
                             {}
                         )
@@ -69,7 +59,22 @@ class MainActivity : ComponentActivity() {
                     }
                     // Add entry
                     composable(Destinations.ADD_ENTRY_DESTINATION) {
+                        val vm: AddEntryViewModel = addEntryViewModel
+                        LaunchedEffect(Unit) {
+                            vm.load()
+                        }
 
+
+
+                        AddEntryScreen(
+                            onSave = { entry ->
+                                addEntryViewModel.addEntry(entry)
+                                navController.popBackStack()
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
                     }
                 }
             }
