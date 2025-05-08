@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
                     navController,
                     Destinations.ENTRY_LIST_DESTINATION
                 ){
+                    // Entry list
                     composable(Destinations.ENTRY_LIST_DESTINATION) {
                         val vm: EntryListViewModel = entryListViewModel
 
@@ -44,7 +45,15 @@ class MainActivity : ComponentActivity() {
 
                         EntryListScreen(
                             entries = state,
+                            onAddClicked = {
+                                navController.navigate(Destinations.ADD_ENTRY_DESTINATION)
+                            },
+                            {}
                         )
+
+                    }
+                    // Add entry
+                    composable(Destinations.ADD_ENTRY_DESTINATION) {
 
                     }
                 }
@@ -56,6 +65,7 @@ class MainActivity : ComponentActivity() {
 object Destinations {
     const val ARG_ID = "id"
     const val ENTRY_LIST_DESTINATION = "entry_list"
+    const val ADD_ENTRY_DESTINATION = "add_entry"
     const val DETAILS_DESTINATION = "details/{$ARG_ID}"
 
     fun getRouteForDetails(id: Int): String {

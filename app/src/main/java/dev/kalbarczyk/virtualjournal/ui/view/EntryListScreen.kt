@@ -14,9 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,12 +40,19 @@ import dev.kalbarczyk.virtualjournal.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EntryListScreen(entries: List<JournalEntry>) {
+fun EntryListScreen(entries: List<JournalEntry>,onAddClicked: () -> Unit,onClick: () -> Unit) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
-                actions = {}
+                actions = {
+                    IconButton(onClick = onAddClicked) {
+                        Icon(
+                            imageVector = Icons.Filled.AddCircleOutline,
+                            contentDescription = stringResource(R.string.add_button_description),
+                        )
+                    }
+                }
             )
         }
     ){ innerPaddings ->
@@ -56,7 +67,7 @@ fun EntryListScreen(entries: List<JournalEntry>) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(entries, key = { it.id }) {
-                EntryItemView(it)
+                EntryItemView(it,onClick)
             }
         }
 
@@ -64,11 +75,11 @@ fun EntryListScreen(entries: List<JournalEntry>) {
 }
 
 @Composable
-fun EntryItemView(entry: JournalEntry) {
+fun EntryItemView(entry: JournalEntry,onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { /* TODO */ })
+            .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(
@@ -101,5 +112,5 @@ fun EntryItemView(entry: JournalEntry) {
 @Preview(showBackground = true)
 @Composable
 fun EntryListScreenPreview() {
-    EntryListScreen(entries = previewData)
+    EntryListScreen(entries = previewData,{},{})
 }
