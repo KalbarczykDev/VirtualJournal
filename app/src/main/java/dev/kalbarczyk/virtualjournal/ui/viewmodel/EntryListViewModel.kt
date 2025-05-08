@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ListViewModel @Inject constructor(
+class EntryListViewModel @Inject constructor(
     private val repository: JournalEntryRepository,
 ) : ViewModel() {
     var state = MutableStateFlow(listOf<JournalEntry>())
