@@ -44,7 +44,7 @@ fun EntryListScreen(entries: List<JournalEntry>,onAddClicked: () -> Unit,onClick
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
+                title = { Text(stringResource(R.string.entries_list_title)) },
                 actions = {
                     IconButton(onClick = onAddClicked) {
                         Icon(

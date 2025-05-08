@@ -1,5 +1,17 @@
 <resources>
+    <!-- Titles -->
     <string name="app_name">Virtual Journal</string>
+    <string name="add_new_entry_title">Add New Entry</string>
+    <string name="edit_entry_title">Edit Entry</string>
+    <string name="entries_list_title">Entries List</string>
+    <string name="entry_details_title">Entry Details</string>
 
+
+    <!-- Labels -->
+    <string name="location">Location</string>
+
+
+    <!-- Buttons-->
     <string name="add_button_description">Button For Adding New Entries</string>
+    <string name="back_button_description">Button For Back Action</string>
 </resources>
