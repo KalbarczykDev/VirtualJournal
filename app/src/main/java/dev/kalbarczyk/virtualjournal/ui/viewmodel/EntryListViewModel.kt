@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.model.data.JournalEntryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,10 +16,10 @@ class EntryListViewModel @Inject constructor(
     var state = MutableStateFlow(listOf<JournalEntry>())
 
     fun load(){
-        state.update { repository.entries }
-
         viewModelScope.launch {
             repository.initDb()
+            val loaded = repository.getAll()
+            state.value = loaded
         }
     }
 }

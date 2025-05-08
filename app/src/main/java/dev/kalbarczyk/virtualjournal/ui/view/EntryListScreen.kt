@@ -20,12 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.model.previewData
-
+import dev.kalbarczyk.virtualjournal.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +34,7 @@ fun EntryListScreen(entries: List<JournalEntry>) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Journal") },
+                title = { Text(stringResource(R.string.app_name)) },
                 actions = {}
             )
         }
@@ -44,7 +45,7 @@ fun EntryListScreen(entries: List<JournalEntry>) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
                 .padding(horizontal = 8.dp)
-                .padding(bottom = innerPaddings.calculateBottomPadding()),
+                .padding(bottom = systemPaddings.calculateBottomPadding()),
             contentPadding = innerPaddings,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

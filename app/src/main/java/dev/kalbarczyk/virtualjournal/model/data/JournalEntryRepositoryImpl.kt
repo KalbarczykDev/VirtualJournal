@@ -1,5 +1,6 @@
 package dev.kalbarczyk.virtualjournal.model.data
 
+import android.util.Log
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.model.data.db.VirtualJournalDb
@@ -18,12 +19,12 @@ class JournalEntryRepositoryImpl @Inject constructor(
 
     init{
         _entries = List(10){
-            JournalEntry(it, LoremIpsum(10).values.joinToString(""))
+            JournalEntry(0, it.toString() + "|"+LoremIpsum(10).values.joinToString())
         }.toMutableList()
     }
 
     override suspend fun initDb() = withContext(Dispatchers.IO) {
-        if(db.journal.getAll().isEmpty()){
+        if(db.journal.getAll().isEmpty() ){
             for (entry in _entries) {
                 db.journal.add(entry.toEntity())
             }
@@ -34,15 +35,15 @@ class JournalEntryRepositoryImpl @Inject constructor(
         db.journal.add(entry.toEntity())
     }
 
-    override suspend fun update(entry: JournalEntry) {
+    override suspend fun update(entry: JournalEntry) = withContext(Dispatchers.IO) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getById(id: Int): JournalEntry? {
+    override suspend fun getById(id: Int): JournalEntry? = withContext(Dispatchers.IO) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getAll(): List<JournalEntry> {
-        TODO("Not yet implemented")
+    override suspend fun getAll(): List<JournalEntry> = withContext(Dispatchers.IO) {
+        db.journal.getAll().map { it.toDomain() }
     }
 }
