@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
                                         popUpTo(Destinations.LOGIN_DESTINATION) {
                                             inclusive = true
                                         }
+                                        launchSingleTop = true
                                     }
                                 }
                             },
@@ -101,7 +102,9 @@ class MainActivity : ComponentActivity() {
                         EntryListScreen(
                             entries = state,
                             onAddClicked = {
-                                navController.navigate(Destinations.ADD_ENTRY_DESTINATION)
+                                navController.navigate(Destinations.ADD_ENTRY_DESTINATION) {
+                                    launchSingleTop = true
+                                }
                             },
                             {}
                         )
@@ -116,12 +119,19 @@ class MainActivity : ComponentActivity() {
                         AddEntryScreen(
                             onSave = { entry ->
                                 addEntryViewModel.addEntry(entry)
-                                navController.popBackStack()
+                                navController.navigate(Destinations.LIST_ENTRIES_DESTINATION) {
+                                    popUpTo(Destinations.LIST_ENTRIES_DESTINATION) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             },
                             onBack = {
-                                navController.popBackStack()
+                                navController.navigate(Destinations.LIST_ENTRIES_DESTINATION) {
+                                    popUpTo(Destinations.LIST_ENTRIES_DESTINATION) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             }
                         )
+
                     }
                 }
             }
