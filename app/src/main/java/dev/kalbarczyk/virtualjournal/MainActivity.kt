@@ -7,6 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,11 +18,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.kalbarczyk.virtualjournal.ui.theme.VirtualJournalTheme
 import dev.kalbarczyk.virtualjournal.ui.view.AddEntryScreen
 import dev.kalbarczyk.virtualjournal.ui.view.EntryListScreen
+import dev.kalbarczyk.virtualjournal.ui.view.PinLoginScreen
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.AddEntryViewModel
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryListViewModel
-import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioPlayer
-import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
-import java.io.File
+import dev.kalbarczyk.virtualjournal.ui.viewmodel.PinViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,14 +29,16 @@ class MainActivity : ComponentActivity() {
     private val entryListViewModel: EntryListViewModel by viewModels()
     private val addEntryViewModel: AddEntryViewModel by viewModels()
 
-    private val recorder by lazy {
-        AndroidAudioRecorder(applicationContext)
-    }
-    private val player by lazy {
-        AndroidAudioPlayer(applicationContext)
-    }
+    private val pinViewModel: PinViewModel by viewModels()
 
-    private var audioFile: File? = null
+    /* private val recorder by lazy {
+         AndroidAudioRecorder(applicationContext)
+     }
+     private val player by lazy {
+         AndroidAudioPlayer(applicationContext)
+     }
+
+     private var audioFile: File? = null*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +49,42 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController,
-                    Destinations.LIST_ENTRIES_DESTINATION
+                    Destinations.LOGIN_DESTINATION
                 ) {
+
+                    //Login screen
+                    composable(Destinations.LOGIN_DESTINATION) {
+
+                        val vm: PinViewModel = pinViewModel
+
+                        LaunchedEffect(Unit) {
+                            vm.load()
+                        }
+
+                        val state by vm.state.collectAsStateWithLifecycle()
+
+                        var pinInput by rememberSaveable { mutableStateOf("") }
+
+                        PinLoginScreen(
+                            pinUiState = state,
+                            onUnlockButtonClicked = {
+                                vm.submitPin(pinInput) {
+                                    navController.navigate(Destinations.LIST_ENTRIES_DESTINATION) {
+                                        popUpTo(Destinations.LOGIN_DESTINATION) {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
+                            },
+                            pinInput = pinInput,
+                            onPinInputChange = {
+                                pinInput = it
+                                vm.resetError()
+                            },
+                        )
+                    }
+
+
                     // Entry list
                     composable(Destinations.LIST_ENTRIES_DESTINATION) {
                         val vm: EntryListViewModel = entryListViewModel
@@ -75,9 +113,6 @@ class MainActivity : ComponentActivity() {
                         LaunchedEffect(Unit) {
                             vm.load()
                         }
-
-
-
                         AddEntryScreen(
                             onSave = { entry ->
                                 addEntryViewModel.addEntry(entry)
@@ -96,6 +131,7 @@ class MainActivity : ComponentActivity() {
 
 object Destinations {
     const val ARG_ID = "id"
+    const val LOGIN_DESTINATION = "login"
     const val LIST_ENTRIES_DESTINATION = "entry_list"
     const val ADD_ENTRY_DESTINATION = "add_entry"
     const val ENTRY_DETAILS_DESTINATION = "details/{$ARG_ID}"

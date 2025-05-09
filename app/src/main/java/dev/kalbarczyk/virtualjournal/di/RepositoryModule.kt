@@ -10,6 +10,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.kalbarczyk.virtualjournal.model.data.JournalEntryRepository
 import dev.kalbarczyk.virtualjournal.model.data.JournalEntryRepositoryImpl
+import dev.kalbarczyk.virtualjournal.model.data.PinRepository
+import dev.kalbarczyk.virtualjournal.model.data.PinRepositoryImpl
 import dev.kalbarczyk.virtualjournal.model.data.db.VirtualJournalDb
 import javax.inject.Singleton
 
@@ -21,12 +23,17 @@ abstract class RepositoryModule {
         journalEntryRepositoryImpl: JournalEntryRepositoryImpl
     ): JournalEntryRepository
 
-    companion object{
+    @Binds
+    abstract fun bindPinRepository(
+        pinRepositoryImpl: PinRepositoryImpl
+    ): PinRepository
+
+    companion object {
         @Provides
         @Singleton
         fun provideJournalDb(
             @ApplicationContext context: Context
-        ): VirtualJournalDb{
+        ): VirtualJournalDb {
             return Room.databaseBuilder(context, VirtualJournalDb::class.java, "virtual_journal.db")
                 .fallbackToDestructiveMigration(true)
                 .build()
