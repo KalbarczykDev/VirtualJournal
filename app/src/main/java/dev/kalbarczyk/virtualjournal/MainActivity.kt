@@ -215,6 +215,7 @@ class MainActivity : ComponentActivity() {
                                         launchSingleTop = true
                                     }
                                 },
+                                recorder = recorder,
                             )
                         }
                     }

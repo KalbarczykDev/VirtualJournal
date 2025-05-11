@@ -108,7 +108,7 @@ fun AddEntryScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.add_button_description),
+                            contentDescription = null,
                         )
                     }
                 },
@@ -199,7 +199,7 @@ fun AddEntryScreen(
                 TextField(
                     value = content,
                     onValueChange = { content = it },
-                    label = { Text("Your note") },
+                    label = { Text(stringResource(R.string.your_note)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

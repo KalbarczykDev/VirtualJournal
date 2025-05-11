@@ -28,13 +28,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
 import dev.kalbarczyk.virtualjournal.R
 import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.model.previewData
+import dev.kalbarczyk.virtualjournal.utils.LocationManager
 import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
 import java.io.File
 
@@ -49,11 +52,17 @@ fun EditEntryScreen(
     recorder: AndroidAudioRecorder? = null,
 ) {
     val context = LocalContext.current
+
     val isInPreview = LocalInspectionMode.current
 
     var content by rememberSaveable { mutableStateOf(state.content) }
-    val cityName = state.cityName ?: "Unknown"
+    var cityName by rememberSaveable { mutableStateOf(state.cityName) }
+    var photoUri by rememberSaveable { mutableStateOf(state.photoPath?.toUri()) }
     var audioPath by rememberSaveable { mutableStateOf(state.voiceRecordingPath) }
+
+    val locationPermissionState = if (!isInPreview) {
+        rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    } else null
 
     val audioPermissionState = if (!isInPreview) {
         rememberPermissionState(Manifest.permission.RECORD_AUDIO)
@@ -61,50 +70,61 @@ fun EditEntryScreen(
 
     var isRecording by remember { mutableStateOf(false) }
     val cacheDir = context.cacheDir
+    val locationManager = remember {
+        LocationManager(
+            context = context, fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(
+                context
+            )
+        )
+    }
 
-    LaunchedEffect(audioPermissionState?.status) {
-        if (audioPermissionState != null && !audioPermissionState.status.isGranted) {
-            audioPermissionState.launchPermissionRequest()
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { photoUri = it },
+    )
+
+    if (!isInPreview) {
+        LaunchedEffect(locationPermissionState?.status) {
+            if (locationPermissionState?.status?.isGranted == true) {
+                cityName = locationManager.getCityName() ?: "Unknown"
+            } else {
+                locationPermissionState?.launchPermissionRequest()
+            }
+
+            if (audioPermissionState != null && !audioPermissionState.status.isGranted) {
+                audioPermissionState.launchPermissionRequest()
+            }
+
         }
     }
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.add_new_entry_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.add_button_description),
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            onSave(
-                                state.copy(
-                                    content = content,
-                                    voiceRecordingPath = audioPath
-                                )
-                            )
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Save,
-                            contentDescription = stringResource(R.string.add_button_description),
-                        )
-                    }
+            CenterAlignedTopAppBar(title = { Text(stringResource(R.string.edit_entry_title)) }, navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null,
+                    )
                 }
-            )
-        }
-    ) { innerPadding ->
+            }, actions = {
+                IconButton(
+                    onClick = {
+                        onSave(
+                            state.copy(
+                                content = content, voiceRecordingPath = audioPath
+                            )
+                        )
+                    }) {
+                    Icon(
+                        imageVector = Icons.Filled.Save,
+                        contentDescription = null,
+                    )
+                }
+            })
+        }) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
@@ -122,6 +142,17 @@ fun EditEntryScreen(
             )
 
             Row {
+                IconButton(onClick = {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.PhotoCamera,
+                        contentDescription = stringResource(R.string.add_button_description),
+                    )
+                }
+
                 IconButton(onClick = {
                     if (audioPermissionState?.status?.isGranted != true) {
                         audioPermissionState?.launchPermissionRequest()
@@ -149,10 +180,16 @@ fun EditEntryScreen(
                 TextField(
                     value = content,
                     onValueChange = { content = it },
-                    label = { Text("Your note") },
+                    label = { Text(stringResource(R.string.your_note)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
+            AsyncImage(
+                modifier = Modifier.fillMaxWidth().height(240.dp).clip(RoundedCornerShape(8.dp)),
+                model = photoUri,
+                contentDescription = null
+            )
         }
     }
 }
@@ -162,9 +199,6 @@ fun EditEntryScreen(
 @Composable
 fun EditEntryScreenPreview() {
     EditEntryScreen(
-        state = previewData[0],
-        onSave = {},
-        onBack = {},
-        recorder = null
+        state = previewData[0], onSave = {}, onBack = {}, recorder = null
     )
 }
