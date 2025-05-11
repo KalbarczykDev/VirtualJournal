@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
@@ -33,6 +34,7 @@ import java.io.File
 fun EntryDetailsScreen(
     state: JournalEntry,
     onBack: () -> Unit,
+    onEditButtonClick: () -> Unit,
     player: AudioPlayer? = null,
 ) {
     Scaffold(
@@ -47,6 +49,14 @@ fun EntryDetailsScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = onEditButtonClick) {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = null,
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -64,20 +74,23 @@ fun EntryDetailsScreen(
         ) {
 
             state.voiceRecordingPath?.let { path ->
-                IconButton(
-                    onClick = {
-                        if (isPlaying) {
-                            player?.stop()
-                        } else {
-                            player?.playFile(File(path))
+                val audioFile = File(path)
+                if (audioFile.exists()) {
+                    IconButton(
+                        onClick = {
+                            if (isPlaying) {
+                                player?.stop()
+                            } else {
+                                player?.playFile(audioFile)
+                            }
+                            isPlaying = !isPlaying
                         }
-                        isPlaying = !isPlaying
+                    ) {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
+                            contentDescription = null,
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
-                        contentDescription = null,
-                    )
                 }
             }
 
@@ -126,6 +139,7 @@ fun EntryDetailsScreen(
 fun EntryDetailsScreenPreview() {
     EntryDetailsScreen(
         state = previewData[0],
+        {},
         {},
         null,
     )

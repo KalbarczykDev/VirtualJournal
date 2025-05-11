@@ -40,8 +40,9 @@ class JournalEntryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun update(entry: JournalEntry) = withContext(Dispatchers.IO) {
-        TODO("Not yet implemented")
+        db.journal.update(entry.toEntity())
     }
+
 
     override suspend fun getById(id: Int): JournalEntry? = withContext(Dispatchers.IO) {
         db.journal.getById(id)?.toDomain()

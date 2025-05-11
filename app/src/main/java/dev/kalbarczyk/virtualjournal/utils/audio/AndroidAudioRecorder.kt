@@ -20,6 +20,11 @@ class AndroidAudioRecorder(
 
     override fun start(outputFile: File) {
         try {
+            if (outputFile.exists()) {
+                Log.i("AudioRecorder", "Deleting existing audio file: ${outputFile.absolutePath}")
+                outputFile.delete()
+            }
+
             if (recorder != null) {
                 Log.w("AudioRecorder", "Recorder already exists. Releasing it.")
                 recorder?.release()
@@ -36,7 +41,7 @@ class AndroidAudioRecorder(
                 start()
             }
 
-            Log.d("AudioRecorder", "Recording started: ${outputFile.absolutePath}")
+            Log.i("AudioRecorder", "Recording started: ${outputFile.absolutePath}")
         } catch (e: Exception) {
             Log.e("AudioRecorder", "Failed to start recording", e)
         }
@@ -48,7 +53,7 @@ class AndroidAudioRecorder(
             recorder?.reset()
             recorder?.release()
             recorder = null
-            Log.d("AudioRecorder", "Recording stopped")
+            Log.i("AudioRecorder", "Recording stopped")
         } catch (e: Exception) {
             Log.e("AudioRecorder", "Failed to stop recording", e)
         }

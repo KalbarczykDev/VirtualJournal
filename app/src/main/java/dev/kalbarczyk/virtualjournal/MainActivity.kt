@@ -18,14 +18,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import dev.kalbarczyk.virtualjournal.ui.theme.VirtualJournalTheme
-import dev.kalbarczyk.virtualjournal.ui.view.AddEntryScreen
-import dev.kalbarczyk.virtualjournal.ui.view.EntryDetailsScreen
-import dev.kalbarczyk.virtualjournal.ui.view.EntryListScreen
-import dev.kalbarczyk.virtualjournal.ui.view.PinLoginScreen
-import dev.kalbarczyk.virtualjournal.ui.viewmodel.AddEntryViewModel
-import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryDetailsViewModel
-import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryListViewModel
-import dev.kalbarczyk.virtualjournal.ui.viewmodel.PinViewModel
+import dev.kalbarczyk.virtualjournal.ui.view.*
+import dev.kalbarczyk.virtualjournal.ui.viewmodel.*
 import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioPlayer
 import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
 
@@ -35,6 +29,8 @@ class MainActivity : ComponentActivity() {
     private val entryListViewModel: EntryListViewModel by viewModels()
     private val addEntryViewModel: AddEntryViewModel by viewModels()
     private val entryDetailsViewModel: EntryDetailsViewModel by viewModels()
+    private val editEntryViewModel: EditEntryViewModel by viewModels()
+
     private val pinViewModel: PinViewModel by viewModels()
 
     private val recorder by lazy {
@@ -148,6 +144,11 @@ class MainActivity : ComponentActivity() {
                                         launchSingleTop = true
                                     }
                                 },
+                                onEditButtonClick = {
+                                    navController.navigate(Destinations.getRouteForEdit(state!!.id)) {
+                                        launchSingleTop = true
+                                    }
+                                },
                                 player = player
                             )
                         }
@@ -177,6 +178,46 @@ class MainActivity : ComponentActivity() {
                         )
 
                     }
+
+                    // Edit entry
+
+                    composable(
+                        Destinations.EDIT_ENTRY_DESTINATION,
+                        arguments = listOf(
+                            navArgument(Destinations.ARG_ID) {
+                                type = NavType.StringType
+                            }
+                        )) { backStackEntry ->
+
+                        val vm: EditEntryViewModel = editEntryViewModel
+
+                        val id = backStackEntry.arguments?.getString(Destinations.ARG_ID)?.toIntOrNull() ?: -1
+
+                        LaunchedEffect(Unit) {
+                            vm.load(id)
+                        }
+
+                        val state by vm.state.collectAsStateWithLifecycle()
+
+                        if (state != null) {
+                            EditEntryScreen(
+                                state = state!!,
+                                onSave = { entry ->
+                                    vm.update(entry)
+                                    navController.navigate(Destinations.LIST_ENTRIES_DESTINATION) {
+                                        popUpTo(Destinations.LIST_ENTRIES_DESTINATION) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onBack = {
+                                    navController.navigate(Destinations.LIST_ENTRIES_DESTINATION) {
+                                        popUpTo(Destinations.LIST_ENTRIES_DESTINATION) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -188,9 +229,14 @@ object Destinations {
     const val LOGIN_DESTINATION = "login"
     const val LIST_ENTRIES_DESTINATION = "entry_list"
     const val ADD_ENTRY_DESTINATION = "add_entry"
+    const val EDIT_ENTRY_DESTINATION = "edit/{$ARG_ID}"
     const val ENTRY_DETAILS_DESTINATION = "details/{$ARG_ID}"
 
     fun getRouteForDetails(id: Int): String {
         return ENTRY_DETAILS_DESTINATION.replace("{$ARG_ID}", id.toString())
+    }
+
+    fun getRouteForEdit(id: Int): String {
+        return EDIT_ENTRY_DESTINATION.replace("{$ARG_ID}", id.toString())
     }
 }
