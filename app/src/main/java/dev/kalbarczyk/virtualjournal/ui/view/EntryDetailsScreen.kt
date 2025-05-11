@@ -75,7 +75,7 @@ fun EntryDetailsScreen(
                     }
                 ) {
                     Icon(
-                        imageVector = if (isPlaying) Icons.Filled.PlayArrow else Icons.Filled.Stop,
+                        imageVector = if (isPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
                         contentDescription = null,
                     )
                 }

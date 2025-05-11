@@ -9,12 +9,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +38,7 @@ import dev.kalbarczyk.virtualjournal.R
 import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.utils.LocationManager
 import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
+import dev.kalbarczyk.virtualjournal.utils.audio.AudioRecorder
 import java.io.File
 
 
@@ -47,7 +49,7 @@ fun AddEntryScreen(
     onSave: (JournalEntry) -> Unit,
     onBack: () -> Unit,
     recorder: AndroidAudioRecorder? = null,
-    player: AndroidAudioRecorder? = null,
+    player: AudioRecorder? = null,
 ) {
 
     val context = LocalContext.current
@@ -67,10 +69,8 @@ fun AddEntryScreen(
         rememberPermissionState(Manifest.permission.RECORD_AUDIO)
     } else null
 
-
+    var isRecording by remember { mutableStateOf(false) }
     val cacheDir = context.cacheDir
-    var audioFile by remember { mutableStateOf<File?>(null) }
-
     val locationManager = remember {
         LocationManager(
             context = context,
@@ -167,6 +167,29 @@ fun AddEntryScreen(
                     )
                 }
 
+                IconButton(onClick = {
+                    if (audioPermissionState?.status?.isGranted != true) {
+                        audioPermissionState?.launchPermissionRequest()
+                        return@IconButton
+                    }
+
+                    if (!isRecording) {
+                        File(cacheDir, "audio_${System.currentTimeMillis()}.mp4").also {
+                            recorder?.start(it)
+                            audioPath = it.absolutePath
+                        }
+                    } else {
+                        recorder?.stop()
+                    }
+                    isRecording = !isRecording
+                }) {
+                    Icon(
+                        imageVector = if (isRecording) Icons.Filled.Stop else Icons.Filled.Mic,
+                        contentDescription = null
+                    )
+                }
+
+
             }
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -181,38 +204,6 @@ fun AddEntryScreen(
                 )
             }
 
-
-            /*   Column(
-                   verticalArrangement = Arrangement.spacedBy(8.dp),
-                   horizontalAlignment = Alignment.CenterHorizontally
-               ) {
-                   Button(onClick = {
-                       File(cacheDir, "audio.mp3").also {
-                           recorder?.start(it)
-                           audioFile = it
-                       }
-                   }) {
-                       Text("Start recording")
-                   }
-
-                   Button(onClick = {
-                       recorder?.stop()
-                   }) {
-                       Text("Stop recording")
-                   }
-
-                   Button(onClick = {
-                       audioFile?.let { player?.start(it) }
-                   }) {
-                       Text("Play")
-                   }
-
-                   Button(onClick = {
-                       player?.stop()
-                   }) {
-                       Text("Stop playing")
-                   }
-               }*/
 
             AsyncImage(
                 modifier = Modifier.fillMaxWidth().height(240.dp).clip(RoundedCornerShape(8.dp)),
@@ -231,6 +222,5 @@ fun AddEntryScreenPreview() {
     AddEntryScreen(
         onSave = {},
         onBack = {},
-
-        )
+    )
 }

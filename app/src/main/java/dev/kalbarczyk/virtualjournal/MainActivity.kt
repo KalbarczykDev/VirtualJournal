@@ -148,7 +148,7 @@ class MainActivity : ComponentActivity() {
                                         launchSingleTop = true
                                     }
                                 },
-                                player = null
+                                player = player
                             )
                         }
                     }
@@ -172,7 +172,8 @@ class MainActivity : ComponentActivity() {
                                     popUpTo(Destinations.LIST_ENTRIES_DESTINATION) { inclusive = true }
                                     launchSingleTop = true
                                 }
-                            }
+                            },
+                            recorder = recorder,
                         )
 
                     }
