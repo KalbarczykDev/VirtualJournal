@@ -112,7 +112,10 @@ fun EditEntryScreen(
                     onClick = {
                         onSave(
                             state.copy(
-                                content = content, voiceRecordingPath = audioPath
+                                content = content,
+                                voiceRecordingPath = audioPath,
+                                photoPath = photoUri?.toString(),
+                                cityName = cityName
                             )
                         )
                     }) {
