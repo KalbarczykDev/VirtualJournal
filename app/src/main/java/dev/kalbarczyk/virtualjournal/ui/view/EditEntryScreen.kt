@@ -104,7 +104,7 @@ fun EditEntryScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.back_button_description),
                     )
                 }
             }, actions = {
@@ -121,7 +121,7 @@ fun EditEntryScreen(
                     }) {
                     Icon(
                         imageVector = Icons.Filled.Save,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.save_button_description),
                     )
                 }
             })
@@ -152,7 +152,7 @@ fun EditEntryScreen(
                 }) {
                     Icon(
                         imageVector = Icons.Filled.PhotoCamera,
-                        contentDescription = stringResource(R.string.add_button_description),
+                        contentDescription = stringResource(R.string.add_photo_button_description),
                     )
                 }
 
@@ -174,7 +174,7 @@ fun EditEntryScreen(
                 }) {
                     Icon(
                         imageVector = if (isRecording) Icons.Filled.Stop else Icons.Filled.Mic,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.record_button_description),
                     )
                 }
             }
@@ -191,7 +191,7 @@ fun EditEntryScreen(
             AsyncImage(
                 modifier = Modifier.fillMaxWidth().height(240.dp).clip(RoundedCornerShape(8.dp)),
                 model = photoUri,
-                contentDescription = null
+                contentDescription = stringResource(R.string.your_photo_description),
             )
         }
     }

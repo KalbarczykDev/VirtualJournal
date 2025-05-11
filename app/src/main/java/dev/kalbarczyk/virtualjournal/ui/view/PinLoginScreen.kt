@@ -5,11 +5,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.kalbarczyk.virtualjournal.R
 import dev.kalbarczyk.virtualjournal.model.PinUiState
-
 
 @Composable
 fun PinLoginScreen(
@@ -31,7 +32,7 @@ fun PinLoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (pinUiState.isPinSet) "Enter your PIN" else "Set a New PIN",
+                text = if (pinUiState.isPinSet) stringResource(R.string.enter_pin) else stringResource(R.string.set_pin),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -41,7 +42,7 @@ fun PinLoginScreen(
             OutlinedTextField(
                 value = pinInput,
                 onValueChange = onPinInputChange,
-                label = { Text("PIN") },
+                label = { Text(stringResource(R.string.pin)) },
                 isError = pinUiState.pinError,
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -52,7 +53,7 @@ fun PinLoginScreen(
             if (pinUiState.pinError) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Incorrect PIN",
+                    text = stringResource(R.string.incorrect_pin),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -64,7 +65,7 @@ fun PinLoginScreen(
                 onClick = onUnlockButtonClicked,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = if (pinUiState.isPinSet) "Unlock" else "Save PIN")
+                Text(text = if (pinUiState.isPinSet) stringResource(R.string.unlock) else stringResource(R.string.set_pin))
             }
         }
     }

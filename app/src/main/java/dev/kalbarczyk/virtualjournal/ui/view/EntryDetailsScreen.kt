@@ -45,7 +45,7 @@ fun EntryDetailsScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.back_button_description),
                         )
                     }
                 },
@@ -53,7 +53,7 @@ fun EntryDetailsScreen(
                     IconButton(onClick = onEditButtonClick) {
                         Icon(
                             imageVector = Icons.Filled.Edit,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.edit_button_description),
                         )
                     }
                 }
@@ -88,7 +88,7 @@ fun EntryDetailsScreen(
                     ) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Filled.Stop else Icons.Filled.PlayArrow,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.play_button_description),
                         )
                     }
                 }
@@ -125,7 +125,7 @@ fun EntryDetailsScreen(
 
             AsyncImage(
                 modifier = Modifier.fillMaxWidth().height(240.dp).clip(RoundedCornerShape(8.dp)),
-                model = state.photoPath, contentDescription = null
+                model = state.photoPath, contentDescription = stringResource(R.string.your_photo_description)
             )
         }
 

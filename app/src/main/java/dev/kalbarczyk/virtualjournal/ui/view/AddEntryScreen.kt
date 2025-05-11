@@ -38,7 +38,6 @@ import dev.kalbarczyk.virtualjournal.R
 import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.utils.LocationManager
 import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
-import dev.kalbarczyk.virtualjournal.utils.audio.AudioRecorder
 import java.io.File
 
 
@@ -49,7 +48,6 @@ fun AddEntryScreen(
     onSave: (JournalEntry) -> Unit,
     onBack: () -> Unit,
     recorder: AndroidAudioRecorder? = null,
-    player: AudioRecorder? = null,
 ) {
 
     val context = LocalContext.current
@@ -108,7 +106,7 @@ fun AddEntryScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.back_button_description),
                         )
                     }
                 },
@@ -163,7 +161,7 @@ fun AddEntryScreen(
                 }) {
                     Icon(
                         imageVector = Icons.Filled.PhotoCamera,
-                        contentDescription = stringResource(R.string.add_button_description),
+                        contentDescription = stringResource(R.string.add_photo_button_description),
                     )
                 }
 
@@ -185,7 +183,7 @@ fun AddEntryScreen(
                 }) {
                     Icon(
                         imageVector = if (isRecording) Icons.Filled.Stop else Icons.Filled.Mic,
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.record_button_description),
                     )
                 }
 
@@ -207,7 +205,7 @@ fun AddEntryScreen(
 
             AsyncImage(
                 modifier = Modifier.fillMaxWidth().height(240.dp).clip(RoundedCornerShape(8.dp)),
-                model = photoUri, contentDescription = null
+                model = photoUri, contentDescription = stringResource(R.string.your_photo_description)
             )
         }
 

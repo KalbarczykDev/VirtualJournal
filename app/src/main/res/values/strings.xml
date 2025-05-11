@@ -10,9 +10,27 @@
     <!-- Labels -->
     <string name="location">Location</string>
     <string name="your_note">Your Note</string>
+    <string name="pin">PIN</string>
+
+    <string name="unlock">Unlock</string>
+    <string name="save_pin">Save PIN</string>
+
+    <!-- Content description -->
+    <string name="your_photo_description">Your Photo</string>
+
+    <string name="enter_pin">Enter Your PIN</string>
+    <string name="set_pin">Set A New PIN</string>
+
+    <string name="incorrect_pin">Incorrect PIN</string>
 
 
     <!-- Buttons-->
+    <string name="edit_button_description">Button For Editing Entries</string>
     <string name="add_button_description">Button For Adding New Entries</string>
     <string name="back_button_description">Button For Back Action</string>
+    <string name="save_button_description">Button For Saving Entries</string>
+    <string name="add_photo_button_description">Button For Adding Photos</string>
+    <string name="record_button_description">Button For Recording Audio</string>
+    <string name="play_button_description">Button For Playing Audio</string>
+
 </resources>
