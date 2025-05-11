@@ -11,34 +11,38 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import dev.kalbarczyk.virtualjournal.ui.theme.VirtualJournalTheme
 import dev.kalbarczyk.virtualjournal.ui.view.AddEntryScreen
+import dev.kalbarczyk.virtualjournal.ui.view.EntryDetailsScreen
 import dev.kalbarczyk.virtualjournal.ui.view.EntryListScreen
 import dev.kalbarczyk.virtualjournal.ui.view.PinLoginScreen
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.AddEntryViewModel
+import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryDetailsViewModel
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.EntryListViewModel
 import dev.kalbarczyk.virtualjournal.ui.viewmodel.PinViewModel
+import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioPlayer
+import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val entryListViewModel: EntryListViewModel by viewModels()
     private val addEntryViewModel: AddEntryViewModel by viewModels()
-
+    private val entryDetailsViewModel: EntryDetailsViewModel by viewModels()
     private val pinViewModel: PinViewModel by viewModels()
 
-    /* private val recorder by lazy {
-         AndroidAudioRecorder(applicationContext)
-     }
-     private val player by lazy {
-         AndroidAudioPlayer(applicationContext)
-     }
-
-     private var audioFile: File? = null*/
+    private val recorder by lazy {
+        AndroidAudioRecorder(applicationContext)
+    }
+    private val player by lazy {
+        AndroidAudioPlayer(applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,10 +110,52 @@ class MainActivity : ComponentActivity() {
                                     launchSingleTop = true
                                 }
                             },
-                            {}
+                            onEntryClicked = {
+                                val id = it.arguments?.getInt(Destinations.ARG_ID) ?: -1
+                                if (id != -1) {
+                                    navController.navigate(Destinations.getRouteForDetails(id)) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
                         )
-
                     }
+
+                    composable(
+                        Destinations.ENTRY_DETAILS_DESTINATION,
+                        arguments = listOf(
+                            navArgument(Destinations.ARG_ID) {
+                                type = NavType.StringType
+                            }
+                        )) { backStackEntry ->
+
+                        val vm: EntryDetailsViewModel = entryDetailsViewModel
+
+                        val id = backStackEntry.arguments?.getString(Destinations.ARG_ID)?.toIntOrNull() ?: -1
+
+
+
+
+                        LaunchedEffect(Unit) {
+                            vm.load(id)
+                        }
+
+                        val state by vm.state.collectAsStateWithLifecycle()
+
+                        if (state != null) {
+                            EntryDetailsScreen(
+                                state = state!!,
+                                onBack = {
+                                    navController.navigate(Destinations.LIST_ENTRIES_DESTINATION) {
+                                        popUpTo(Destinations.LIST_ENTRIES_DESTINATION) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                },
+                                player = null
+                            )
+                        }
+                    }
+
                     // Add entry
                     composable(Destinations.ADD_ENTRY_DESTINATION) {
                         val vm: AddEntryViewModel = addEntryViewModel

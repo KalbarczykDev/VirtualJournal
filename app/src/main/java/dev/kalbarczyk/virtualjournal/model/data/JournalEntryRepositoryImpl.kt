@@ -44,7 +44,7 @@ class JournalEntryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getById(id: Int): JournalEntry? = withContext(Dispatchers.IO) {
-        TODO("Not yet implemented")
+        db.journal.getById(id)?.toDomain()
     }
 
     override suspend fun getAll(): List<JournalEntry> = withContext(Dispatchers.IO) {
