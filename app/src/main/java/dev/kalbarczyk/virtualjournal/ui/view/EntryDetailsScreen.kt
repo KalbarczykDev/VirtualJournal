@@ -1,23 +1,20 @@
 package dev.kalbarczyk.virtualjournal.ui.view
 
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,7 +23,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dev.kalbarczyk.virtualjournal.R
 import dev.kalbarczyk.virtualjournal.model.JournalEntry
 import dev.kalbarczyk.virtualjournal.model.previewData
-import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
+import dev.kalbarczyk.virtualjournal.utils.audio.AudioPlayer
+import java.io.File
 
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
@@ -35,7 +33,7 @@ import dev.kalbarczyk.virtualjournal.utils.audio.AndroidAudioRecorder
 fun EntryDetailsScreen(
     state: JournalEntry,
     onBack: () -> Unit,
-    player: AndroidAudioRecorder? = null,
+    player: AudioPlayer? = null,
 ) {
     Scaffold(
         topBar = {
@@ -53,37 +51,63 @@ fun EntryDetailsScreen(
         }
     ) { innerPadding ->
 
+        var isPlaying by remember { mutableStateOf(false) }
+
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.location) + ": ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(state.cityName)
+            state.voiceRecordingPath?.let { path ->
+                IconButton(
+                    onClick = {
+                        if (isPlaying) {
+                            player?.stop()
+                        } else {
+                            player?.playFile(File(path))
+                        }
+                        isPlaying = !isPlaying
                     }
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 18.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+                ) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Filled.PlayArrow else Icons.Filled.Stop,
+                        contentDescription = null,
+                    )
+                }
+            }
 
             Card(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                Text(
-                    text = state.content,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        text = state.content,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 18.sp,
+
+                        )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    state.cityName?.let { city ->
+                        Text(
+                            text = city,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
 
             AsyncImage(

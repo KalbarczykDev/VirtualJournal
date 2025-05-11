@@ -21,7 +21,7 @@ import dev.kalbarczyk.virtualjournal.model.previewData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EntryListScreen(entries: List<JournalEntry>, onAddClicked: () -> Unit, onEntryClicked: () -> Unit) {
+fun EntryListScreen(entries: List<JournalEntry>, onAddClicked: () -> Unit, onEntryClicked: (JournalEntry) -> Unit) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -56,11 +56,11 @@ fun EntryListScreen(entries: List<JournalEntry>, onAddClicked: () -> Unit, onEnt
 }
 
 @Composable
-fun EntryItemView(entry: JournalEntry, onClick: () -> Unit) {
+fun EntryItemView(entry: JournalEntry, onEntryClicked: (JournalEntry) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = { onEntryClicked(entry) })
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(

@@ -110,12 +110,9 @@ class MainActivity : ComponentActivity() {
                                     launchSingleTop = true
                                 }
                             },
-                            onEntryClicked = {
-                                val id = it.arguments?.getInt(Destinations.ARG_ID) ?: -1
-                                if (id != -1) {
-                                    navController.navigate(Destinations.getRouteForDetails(id)) {
-                                        launchSingleTop = true
-                                    }
+                            onEntryClicked = { entry ->
+                                navController.navigate(Destinations.getRouteForDetails(entry.id)) {
+                                    launchSingleTop = true
                                 }
                             }
                         )
